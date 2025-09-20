@@ -5,12 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fdc890d7-8083-4c00-bd1d-b28bcc55695d" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/tech/thedumbdev/App.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/tech/thedumbdev/App.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/tech/thedumbdev/data/DataStore.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/tech/thedumbdev/data/DataStore.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/tech/thedumbdev/data/ElasticStore.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/tech/thedumbdev/data/ElasticStore.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/tech/thedumbdev/data/FileStore.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/tech/thedumbdev/data/FileStore.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/tech/thedumbdev/service/Logger.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/tech/thedumbdev/service/Logger.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logs/test.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/tech/thedumbdev/App.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/tech/thedumbdev/App.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -47,7 +45,7 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "Application.App.executor": "Run",
+    "Application.App.executor": "Debug",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
@@ -97,7 +95,7 @@
       <workItem from="1758384736404" duration="1264000" />
       <workItem from="1758386256575" duration="193000" />
       <workItem from="1758386461900" duration="39000" />
-      <workItem from="1758391631888" duration="5006000" />
+      <workItem from="1758391631888" duration="6702000" />
     </task>
     <servers />
   </component>
@@ -111,6 +109,36 @@
           <properties class="java.lang.NullPointerException" package="java.lang" />
           <option name="timeStamp" value="1" />
         </breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/tech/thedumbdev/App.java</url>
+          <line>10</line>
+          <option name="timeStamp" value="15" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/tech/thedumbdev/App.java</url>
+          <line>11</line>
+          <option name="timeStamp" value="16" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/tech/thedumbdev/App.java</url>
+          <line>12</line>
+          <option name="timeStamp" value="17" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/tech/thedumbdev/App.java</url>
+          <line>13</line>
+          <option name="timeStamp" value="18" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/tech/thedumbdev/App.java</url>
+          <line>14</line>
+          <option name="timeStamp" value="19" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/tech/thedumbdev/App.java</url>
+          <line>15</line>
+          <option name="timeStamp" value="20" />
+        </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
   </component>

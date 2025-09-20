@@ -6,10 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="fdc890d7-8083-4c00-bd1d-b28bcc55695d" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/tech/thedumbdev/data/Datastore.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/tech/thedumbdev/data/DataStore.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/tech/thedumbdev/data/Filestore.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/tech/thedumbdev/data/FileStore.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/tech/thedumbdev/enums/Severity.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/tech/thedumbdev/enums/Severity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/tech/thedumbdev/pojo/Log.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/tech/thedumbdev/pojo/Log.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/tech/thedumbdev/App.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/tech/thedumbdev/App.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/tech/thedumbdev/data/DataStore.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/tech/thedumbdev/data/DataStore.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/tech/thedumbdev/data/ElasticStore.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/tech/thedumbdev/data/ElasticStore.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/tech/thedumbdev/data/FileStore.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/tech/thedumbdev/data/FileStore.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/tech/thedumbdev/service/Logger.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/tech/thedumbdev/service/Logger.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -47,6 +47,7 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "Application.App.executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
@@ -96,12 +97,22 @@
       <workItem from="1758384736404" duration="1264000" />
       <workItem from="1758386256575" duration="193000" />
       <workItem from="1758386461900" duration="39000" />
-      <workItem from="1758391631888" duration="747000" />
+      <workItem from="1758391631888" duration="5006000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <breakpoint enabled="true" type="java-exception">
+          <properties class="java.lang.NullPointerException" package="java.lang" />
+          <option name="timeStamp" value="1" />
+        </breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

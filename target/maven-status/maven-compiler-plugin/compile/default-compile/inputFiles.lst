@@ -1,0 +1,8 @@
+/home/aditya/Documents/Coding/projects/logging-notification-system/logging-system/src/main/java/tech/thedumbdev/App.java
+/home/aditya/Documents/Coding/projects/logging-notification-system/logging-system/src/main/java/tech/thedumbdev/data/DataStore.java
+/home/aditya/Documents/Coding/projects/logging-notification-system/logging-system/src/main/java/tech/thedumbdev/data/ElasticStore.java
+/home/aditya/Documents/Coding/projects/logging-notification-system/logging-system/src/main/java/tech/thedumbdev/data/FileStore.java
+/home/aditya/Documents/Coding/projects/logging-notification-system/logging-system/src/main/java/tech/thedumbdev/enums/Severity.java
+/home/aditya/Documents/Coding/projects/logging-notification-system/logging-system/src/main/java/tech/thedumbdev/pojo/Log.java
+/home/aditya/Documents/Coding/projects/logging-notification-system/logging-system/src/main/java/tech/thedumbdev/service/Logger.java
+/home/aditya/Documents/Coding/projects/logging-notification-system/logging-system/src/main/java/tech/thedumbdev/utils/DeepCopy.java

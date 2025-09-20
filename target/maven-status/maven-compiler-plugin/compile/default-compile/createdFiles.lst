@@ -1,8 +1,0 @@
-tech/thedumbdev/data/ElasticStore.class
-tech/thedumbdev/data/DataStore.class
-tech/thedumbdev/data/FileStore.class
-tech/thedumbdev/App.class
-tech/thedumbdev/service/Logger.class
-tech/thedumbdev/enums/Severity.class
-tech/thedumbdev/pojo/Log.class
-tech/thedumbdev/utils/DeepCopy.class

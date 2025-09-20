@@ -1,6 +1,7 @@
 package tech.thedumbdev.enums;
 
 public enum Severity {
+    UNDEFINED("undefined"),
     CRITICAL("critical"),
     HIGH("high"),
     MEDIUM("medium"),

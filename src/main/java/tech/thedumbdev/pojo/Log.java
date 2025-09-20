@@ -13,10 +13,15 @@ public class Log implements Serializable {
     private Severity severity;
     private String stackTrace;
 
+    public Log() {}
+
     public Log(String data) {
         this.data = data;
-        // TODO: Figure out how to get thread information while,
-        //  the user is adding or appending any Log and add stack trace
+    }
+
+    public Log(String data, Severity severity) { // By default, we'll have the UNDEFINED
+        this.data = data;
+        this.severity = severity;
     }
 
     public String getData() {

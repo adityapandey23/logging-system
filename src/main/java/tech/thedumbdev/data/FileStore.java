@@ -2,12 +2,15 @@ package tech.thedumbdev.data;
 
 import tech.thedumbdev.pojo.Log;
 
+import java.util.Collection;
 import java.util.concurrent.TimeoutException;
 
-public class Filestore implements Datastore{
+public class FileStore implements DataStore {
     @Override
     public void addLog(Log log) {}
 
     @Override
-    public void appendLog() throws TimeoutException {}
+    public void appendLog(Collection<Log> logs) throws TimeoutException {
+
+    }
 }

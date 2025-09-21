@@ -12,6 +12,7 @@ public class FileStore implements DataStore {
     @Override
     public void appendLog(Collection<Log> logs) throws TimeoutException {
         try {
+            // TODO: Change this location to some other files system place
             File file = new File("./logs/test.log"); // This is not autocloseable, as it doesn't need to be closed lol
             try (
                     FileOutputStream outputBuffer = new FileOutputStream(file, false);

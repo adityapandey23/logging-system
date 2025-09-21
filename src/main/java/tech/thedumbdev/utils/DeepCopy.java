@@ -4,7 +4,7 @@ import java.io.*;
 
 public class DeepCopy {
     @SuppressWarnings("unchecked") // This is for line 21
-    public static <T /* extends Serializable // TODO: Make this serialable*/ > T deepCopy(T original)
+    public static <T> T deepCopy(T original) // IDK whether I should put Serializable here or not
             throws IOException, ClassNotFoundException {
 
         try (

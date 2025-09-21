@@ -16,9 +16,10 @@ public class Log implements Serializable {
 
     public Log(String data) {
         this.data = data;
+        this.severity = Severity.UNDEFINED; // Default severity
     }
 
-    public Log(String data, Severity severity) { // By default, we'll have the UNDEFINED
+    public Log(String data, Severity severity) {
         this.data = data;
         this.severity = severity;
     }

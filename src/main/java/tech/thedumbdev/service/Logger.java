@@ -1,103 +1,109 @@
 package tech.thedumbdev.service;
-// TODO: Update the time out logic
+// !ALERT: This supports only one type of logger at a time
+
 import tech.thedumbdev.data.DataStore;
 import tech.thedumbdev.data.FileStore;
-import tech.thedumbdev.enums.Severity;
 import tech.thedumbdev.pojo.Log;
 import tech.thedumbdev.utils.DeepCopy;
 
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 
 public class Logger {
-    private static Logger logger = null;
-    private DataStore filestore = new FileStore(); // TODO: Replace this with the DataStore interface
-    private Set<Log> logTrackSet = new HashSet<>();
-    private Queue<Set<Log>> logProcessingQueue = new ArrayDeque<>();
-    ExecutorService service = Executors.newFixedThreadPool(10);
+    private static volatile Logger logger;
+    private static DataStore dataStore;
+    private static Set<Log> logSet;
+    private static Queue<Set<Log>> logProcessingQueue;
+    private static ExecutorService service;
 
-    public static Logger getInstance() {
+    Logger() {}
+
+    // If you don't define what datastore you want, we'll give you FileStore by default
+    public static void initInstance(DataStore dataStore) {
         if (logger == null) {
-            return new Logger();
+            synchronized (Logger.class) {
+                if (logger == null) {
+                    logger = new Logger();
+                    Logger.dataStore = dataStore;
+                    Logger.logSet = new HashSet<>();
+                    Logger.logProcessingQueue = new LinkedBlockingQueue<>();
+                    Logger.service = Executors.newFixedThreadPool(10);
+                }
+            }
         }
-        return logger;
     }
 
-    public void addLog(Log log) { // Could make this in Strategy pattern like, addLogMap, addLogSet etc
-        synchronized (Logger.class) { // One operation at a time
+    public static void addLog(Log log) throws RuntimeException { // TODO: Implement this in static fashion
+        if (logger == null) {
+            throw new RuntimeException("logger is null, please call Logger.initInstance(datastore)");
+        }
+
+        synchronized (Logger.class) {
             long timestamp = java.time.Instant.now().toEpochMilli();
             Thread currentThread = Thread.currentThread();
-            StackTraceElement[] stackTraceElements = currentThread.getStackTrace();
+            StackTraceElement[] stackTrace = currentThread.getStackTrace();
 
-            StringBuilder builder = new StringBuilder();
-            for (StackTraceElement stackTraceElement : stackTraceElements) {
-                builder.append(stackTraceElement.toString()).append("\n");
+            StringBuilder stackTraceBuilder = new StringBuilder();
+            for (StackTraceElement stackTraceElement : stackTrace) {
+                stackTraceBuilder.append(stackTraceElement.toString()).append("\n");
             }
 
-            String stackTraceString = builder.toString();
+            String stackTraceString = stackTraceBuilder.toString();
 
             log.setTimestamp(timestamp);
             log.setThreadId(Long.toString(currentThread.getId()));
             log.setThreadName(currentThread.getName());
             log.setStackTrace(stackTraceString);
-            log.setSeverity((log.getSeverity() == null) ? Severity.UNDEFINED : log.getSeverity()); // As the other one wasn't working
 
-            put(logTrackSet, log);
+            put(logSet, log);
         }
     }
 
-    public void appendLog() {
-        // Get the logs from the set
-        // Put that into the queue
+    public static void appendLog() throws RuntimeException { // TODO: Implement this in static fashion
+        if (logger == null) {
+            throw new RuntimeException("logger is null, please call Logger.initInstance(datastore)");
+        }
+
         synchronized (Logger.class) {
             try {
-                Set<Log> logTrackSetCopied = DeepCopy.deepCopy(logTrackSet);
-                put(logProcessingQueue, logTrackSetCopied); // Pushing all the logs into the queue
-                flushLogTrackSet(); // Shallow copy error, the set from the queue will also get erased
+                Set<Log> logSetCopy = DeepCopy.deepCopy(logSet); // To avoid shallow copy error
+                put(logProcessingQueue, logSetCopy);
+                flushLogSet();
                 service.submit(() -> {
-                    // Perform storing it into the Datastore
                     try {
-                        filestore.appendLog(logProcessingQueue.poll());
-                    } catch (TimeoutException e) {
-                        throw new RuntimeException(e); // Will handle this differently
+                        dataStore.appendLog(logProcessingQueue.peek());
+                        logProcessingQueue.poll();
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
                     }
                 });
+
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }
     }
 
-    private void flushLogTrackSet() {
-        logTrackSet.clear();
+    private static void flushLogSet() {
+        logSet.clear();
     }
 
-    private void flushLogProcessingQueue() {
+    private static void flushLogProcessingQueue() {
         logProcessingQueue.clear();
     }
 
-    private <T> void put(Collection<T> collection, T item) {
+    private static <T> void put(Collection<T> collection, T item) {
         collection.add(item);
     }
 
-    private void deleteLog() {}; // TODO: Add timeout and do implement and size implementation as well
+    private static void deleteLogs() {
+        // Figure out the size logic
+    }
 
-    public void shutdown() {
-        service.shutdown(); // Stop accepting new tasks, finish the existing ones
-        try {
-            if (!service.awaitTermination(10, TimeUnit.SECONDS)) {
-                service.shutdownNow(); // Forcefully kill if not done in 10s
-            }
-        } catch (InterruptedException e) {
-            service.shutdownNow();
-            Thread.currentThread().interrupt(); // Restore interrupt flag
-        }
+    public static void close() {
+        // make sure the processing queue is empty
+        // Kill the thread pool
+        // And disconnect from the elastic search instance
     }
 
 }

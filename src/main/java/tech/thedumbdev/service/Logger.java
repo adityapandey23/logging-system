@@ -86,7 +86,7 @@ public class Logger {
         collection.add(item);
     }
 
-    private void deleteLog() {}; // TODO: Add timeout and do implement
+    private void deleteLog() {}; // TODO: Add timeout and do implement and size implementation as well
 
     public void shutdown() {
         service.shutdown(); // Stop accepting new tasks, finish the existing ones

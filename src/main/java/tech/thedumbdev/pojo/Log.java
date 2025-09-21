@@ -3,11 +3,10 @@ package tech.thedumbdev.pojo;
 import tech.thedumbdev.enums.Severity;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
 
 public class Log implements Serializable {
     private String data;
-    private Timestamp timestamp;
+    private long timestamp;
     private String threadId;
     private String threadName;
     private Severity severity;
@@ -32,11 +31,11 @@ public class Log implements Serializable {
         this.data = data;
     }
 
-    public Timestamp getTimestamp() {
+    public long getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(Timestamp timestamp) {
+    public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }
 

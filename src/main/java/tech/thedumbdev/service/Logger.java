@@ -1,5 +1,5 @@
 package tech.thedumbdev.service;
-
+// TODO: Update the time out logic
 import tech.thedumbdev.data.DataStore;
 import tech.thedumbdev.data.FileStore;
 import tech.thedumbdev.enums.Severity;
@@ -12,6 +12,7 @@ import java.time.ZoneOffset;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 public class Logger {
@@ -30,7 +31,7 @@ public class Logger {
 
     public void addLog(Log log) { // Could make this in Strategy pattern like, addLogMap, addLogSet etc
         synchronized (Logger.class) { // One operation at a time
-            Timestamp timestamp = new Timestamp(LocalDateTime.now().toEpochSecond(ZoneOffset.UTC));
+            long timestamp = java.time.Instant.now().toEpochMilli();
             Thread currentThread = Thread.currentThread();
             StackTraceElement[] stackTraceElements = currentThread.getStackTrace();
 
@@ -45,7 +46,7 @@ public class Logger {
             log.setThreadId(Long.toString(currentThread.getId()));
             log.setThreadName(currentThread.getName());
             log.setStackTrace(stackTraceString);
-            log.setSeverity(Severity.UNDEFINED); // As the other one wasn't working
+            log.setSeverity((log.getSeverity() == null) ? Severity.UNDEFINED : log.getSeverity()); // As the other one wasn't working
 
             put(logTrackSet, log);
         }
@@ -85,6 +86,18 @@ public class Logger {
         collection.add(item);
     }
 
-    private void deleteLog() {};
+    private void deleteLog() {}; // TODO: Add timeout and do implement
+
+    public void shutdown() {
+        service.shutdown(); // Stop accepting new tasks, finish the existing ones
+        try {
+            if (!service.awaitTermination(10, TimeUnit.SECONDS)) {
+                service.shutdownNow(); // Forcefully kill if not done in 10s
+            }
+        } catch (InterruptedException e) {
+            service.shutdownNow();
+            Thread.currentThread().interrupt(); // Restore interrupt flag
+        }
+    }
 
 }

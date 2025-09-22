@@ -3,7 +3,7 @@ package tech.thedumbdev.data;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import tech.thedumbdev.pojo.Log;
 
-import java.util.Collection;
+import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
 public class ElasticStore implements DataStore {
@@ -15,7 +15,7 @@ public class ElasticStore implements DataStore {
     }
 
     @Override
-    public void appendLog(Collection<Log> logs) throws TimeoutException {
+    public void appendLog(Set<Log> logs) throws TimeoutException {
         System.out.println("It worked"); // TODO: Implement
     }
 }

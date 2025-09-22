@@ -1,109 +1,107 @@
 package tech.thedumbdev.service;
-// !ALERT: This supports only one type of logger at a time
 
 import tech.thedumbdev.data.DataStore;
 import tech.thedumbdev.data.FileStore;
+import tech.thedumbdev.enums.Severity;
 import tech.thedumbdev.pojo.Log;
-import tech.thedumbdev.utils.DeepCopy;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 public class Logger {
     private static volatile Logger logger;
-    private static DataStore dataStore;
-    private static Set<Log> logSet;
-    private static Queue<Set<Log>> logProcessingQueue;
-    private static ExecutorService service;
+    private DataStore dataStore;
+    private Set<Log> logSet;
+    private Queue<Set<Log>> logProcessingQueue;
+    private ExecutorService service;
 
-    Logger() {}
-
-    // If you don't define what datastore you want, we'll give you FileStore by default
-    public static void initInstance(DataStore dataStore) {
-        if (logger == null) {
-            synchronized (Logger.class) {
-                if (logger == null) {
-                    logger = new Logger();
-                    Logger.dataStore = dataStore;
-                    Logger.logSet = new HashSet<>();
-                    Logger.logProcessingQueue = new LinkedBlockingQueue<>();
-                    Logger.service = Executors.newFixedThreadPool(10);
-                }
-            }
-        }
+    private Logger(DataStore dataStore) {
+        this.dataStore = (dataStore == null) ? new FileStore() : dataStore;
+        this.logSet = new HashSet<>();
+        this.logProcessingQueue = new ConcurrentLinkedQueue<>();
+        this.service = Executors.newFixedThreadPool(10);
     }
 
-    public static void addLog(Log log) throws RuntimeException { // TODO: Implement this in static fashion
-        if (logger == null) {
-            throw new RuntimeException("logger is null, please call Logger.initInstance(datastore)");
-        }
+    public static void initLogger(DataStore dataStore) {
+        logger = new Logger(dataStore);
+    }
 
+    public static Logger getLogger() {
+        return logger;
+    }
+
+    public void addLog(Log log) {
         synchronized (Logger.class) {
-            long timestamp = java.time.Instant.now().toEpochMilli();
-            Thread currentThread = Thread.currentThread();
-            StackTraceElement[] stackTrace = currentThread.getStackTrace();
-
-            StringBuilder stackTraceBuilder = new StringBuilder();
-            for (StackTraceElement stackTraceElement : stackTrace) {
-                stackTraceBuilder.append(stackTraceElement.toString()).append("\n");
+            if (logger == null) {
+                throw new IllegalStateException("Logger has not been initialized yet");
             }
+            long timestamp = java.time.Instant.now().getEpochSecond();
+            Thread currentThread = Thread.currentThread();
+            StackTraceElement[] stackTraceElements = currentThread.getStackTrace();
 
-            String stackTraceString = stackTraceBuilder.toString();
+            StringBuilder stringBuilder = new StringBuilder();
+            for(StackTraceElement stackTraceElement : stackTraceElements) {
+                stringBuilder.append(stackTraceElement.toString()).append("\n");
+            }
 
             log.setTimestamp(timestamp);
-            log.setThreadId(Long.toString(currentThread.getId()));
             log.setThreadName(currentThread.getName());
-            log.setStackTrace(stackTraceString);
+            log.setThreadId(Long.toString(currentThread.getId()));
+            log.setStackTrace(stringBuilder.toString());
+            log.setSeverity((log.getSeverity() == null) ? Severity.UNDEFINED : log.getSeverity());
+            // Should call the service if the logs is of High or Critical Severity
 
-            put(logSet, log);
+            logSet.add(log);
         }
     }
 
-    public static void appendLog() throws RuntimeException { // TODO: Implement this in static fashion
-        if (logger == null) {
-            throw new RuntimeException("logger is null, please call Logger.initInstance(datastore)");
-        }
-
+    public void appendLog() {
         synchronized (Logger.class) {
-            try {
-                Set<Log> logSetCopy = DeepCopy.deepCopy(logSet); // To avoid shallow copy error
-                put(logProcessingQueue, logSetCopy);
-                flushLogSet();
-                service.submit(() -> {
-                    try {
-                        dataStore.appendLog(logProcessingQueue.peek());
-                        logProcessingQueue.poll();
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                });
-
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+            if (logger == null) {
+                throw new IllegalStateException("Logger has not been initialized yet");
             }
+
+            Set<Log> logSetCopy = logSet.stream().map(Log::new).collect(Collectors.toSet()); // Deep copy
+            logProcessingQueue.add(logSetCopy);
+            flushLogSet();
+
+            service.submit(() -> {
+                try {
+                    dataStore.appendLog(logProcessingQueue.peek());
+                } catch (TimeoutException e) {
+                    throw new RuntimeException(e);
+                }
+                logProcessingQueue.remove();
+            });
         }
     }
 
-    private static void flushLogSet() {
+    private void flushLogSet() {
         logSet.clear();
     }
 
-    private static void flushLogProcessingQueue() {
+    private void flushLogProcessingQueue() {
         logProcessingQueue.clear();
     }
 
-    private static <T> void put(Collection<T> collection, T item) {
-        collection.add(item);
+    private void deleteLog() {
+        // File size based
     }
 
-    private static void deleteLogs() {
-        // Figure out the size logic
-    }
-
-    public static void close() {
-        // make sure the processing queue is empty
-        // Kill the thread pool
-        // And disconnect from the elastic search instance
+    public void shutdown() {
+        service.shutdown();
+        try {
+            if (!service.awaitTermination(10, TimeUnit.SECONDS)) {
+                service.shutdownNow();
+            }
+        }
+        catch (InterruptedException e) {
+            service.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
     }
 
 }

@@ -5,15 +5,20 @@ import tech.thedumbdev.pojo.Log;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
-import java.util.Collection;
+import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
 public class FileStore implements DataStore {
+    private long timestamp;
+
+    public FileStore() {
+        this.timestamp = java.time.Instant.now().getEpochSecond();
+    }
+
     @Override
-    public void appendLog(Collection<Log> logs) throws TimeoutException {
+    public void appendLog(Set<Log> logs) throws TimeoutException {
         try {
-            // TODO: Change this location to some other files system place
-            File file = new File("./logs/test.log"); // This is not autocloseable, as it doesn't need to be closed lol
+            File file = new File("./logs/" + this.timestamp + ".log");
             try (
                     FileOutputStream outputBuffer = new FileOutputStream(file, false);
                     ObjectOutputStream objectOut = new ObjectOutputStream(outputBuffer);

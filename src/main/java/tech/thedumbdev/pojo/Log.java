@@ -24,6 +24,16 @@ public class Log implements Serializable {
         this.severity = severity;
     }
 
+    // Copy Constructor
+    public Log(Log other) {
+        this.data = other.data;
+        this.timestamp = other.timestamp;
+        this.threadId = other.threadId;
+        this.threadName = other.threadName;
+        this.severity = other.severity;
+        this.stackTrace = other.stackTrace;
+    }
+
     public String getData() {
         return data;
     }

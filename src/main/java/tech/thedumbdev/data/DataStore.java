@@ -2,6 +2,7 @@ package tech.thedumbdev.data;
 
 import tech.thedumbdev.pojo.Log;
 
+import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
 

@@ -1,6 +1,8 @@
 package tech.thedumbdev.enums;
 
-public enum Severity {
+import java.io.Serializable;
+
+public enum Severity implements Serializable {
     UNDEFINED("undefined"),
     CRITICAL("critical"),
     HIGH("high"),

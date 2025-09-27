@@ -5,6 +5,7 @@ import tech.thedumbdev.data.FileStore;
 import tech.thedumbdev.enums.Severity;
 import tech.thedumbdev.pojo.Log;
 
+import java.util.ArrayDeque;
 import java.util.HashSet;
 import java.util.Queue;
 import java.util.Set;
@@ -21,7 +22,7 @@ public class Logger {
     private Logger(DataStore dataStore) {
         this.dataStore = (dataStore == null) ? new FileStore() : dataStore;
         this.logSet = new HashSet<>();
-        this.logProcessingQueue = new ConcurrentLinkedQueue<>();
+        this.logProcessingQueue = new ArrayDeque<>();
         this.service = Executors.newFixedThreadPool(10);
     }
 
@@ -69,12 +70,13 @@ public class Logger {
             flushLogSet();
 
             service.submit(() -> {
+                Set<Log> logs = logProcessingQueue.peek();
+                logProcessingQueue.remove();
                 try {
-                    dataStore.appendLog(logProcessingQueue.peek());
+                    dataStore.appendLog(logs);
                 } catch (TimeoutException e) {
                     throw new RuntimeException(e);
                 }
-                logProcessingQueue.remove();
             });
         }
     }
@@ -92,15 +94,39 @@ public class Logger {
     }
 
     public void shutdown() {
-        service.shutdown();
+//        try {
+//            if (dataStore instanceof  FileStore) {
+//                ((FileStore) dataStore).fileClose();
+//            }
+//
+//            service.shutdown();
+//            try {
+//                if (!service.awaitTermination(10, TimeUnit.SECONDS)) {
+//                    service.shutdownNow();
+//                }
+//            }
+//            catch (InterruptedException e) {
+//                service.shutdownNow();
+//                Thread.currentThread().interrupt();
+//            }
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        }
+
         try {
-            if (!service.awaitTermination(10, TimeUnit.SECONDS)) {
-                service.shutdownNow();
+            ThreadPoolExecutor executor = (ThreadPoolExecutor) this.service;
+            executor.shutdown();
+            boolean isCompleted = executor.awaitTermination(10, TimeUnit.SECONDS);
+            if(!isCompleted) {
+                throw new RuntimeException("Executor shutdown timed out");
             }
-        }
-        catch (InterruptedException e) {
-            service.shutdownNow();
-            Thread.currentThread().interrupt();
+
+            if (dataStore instanceof  FileStore) {
+                ((FileStore) dataStore).fileClose();
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 

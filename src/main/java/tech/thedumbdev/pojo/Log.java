@@ -2,9 +2,13 @@ package tech.thedumbdev.pojo;
 
 import tech.thedumbdev.enums.Severity;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 public class Log implements Serializable {
+    @Serial
+    private final static long serialVersionUID = 1234L;
+
     private String data;
     private long timestamp;
     private String threadId;

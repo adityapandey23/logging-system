@@ -2,35 +2,43 @@ package tech.thedumbdev.data;
 
 import tech.thedumbdev.pojo.Log;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
 public class FileStore implements DataStore {
     private long timestamp;
+    private File file;
+    private FileOutputStream fos;
+    private ObjectOutputStream oos;
 
     public FileStore() {
         this.timestamp = java.time.Instant.now().getEpochSecond();
-    }
-
-    @Override
-    public void appendLog(Set<Log> logs) throws TimeoutException {
+        this.file = new File("./logs/" + this.timestamp + ".log");
         try {
-            File file = new File("./logs/" + this.timestamp + ".log");
-            try (
-                    FileOutputStream outputBuffer = new FileOutputStream(file, false);
-                    ObjectOutputStream objectOut = new ObjectOutputStream(outputBuffer);
-                    ) {
-                System.out.println("Yes I reached here");
-                for(Log log : logs) {
-                    objectOut.writeObject(log);
-                }
-                objectOut.flush();
-            }
+            this.fos = new FileOutputStream(file, true);
+            this.oos = new ObjectOutputStream(this.fos);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public synchronized void appendLog(Set<Log> logs) throws TimeoutException {
+        try {
+            for(Log log: logs) {
+                System.out.println(log.toString());
+                this.oos.writeObject(log);
+            }
+            // Remove element
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void fileClose() throws IOException { // I KNOW THIS IS NOT CLOSED
+        this.oos.flush();
+        this.oos.close();
+        this.fos.close();
     }
 }

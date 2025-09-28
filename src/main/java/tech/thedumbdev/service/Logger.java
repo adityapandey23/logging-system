@@ -19,16 +19,18 @@ public class Logger {
     private Set<Log> logSet;
     private Queue<Set<Log>> logProcessingQueue;
     private ExecutorService service;
+    private Notify notify;
 
-    private Logger(DataStore dataStore) {
+    private Logger(DataStore dataStore, Notify notify) {
         this.dataStore = (dataStore == null) ? new FileStore() : dataStore;
         this.logSet = new HashSet<>();
         this.logProcessingQueue = new ArrayDeque<>();
         this.service = Executors.newFixedThreadPool(10);
+        this.notify = notify;
     }
 
-    public static void initLogger(DataStore dataStore) {
-        logger = new Logger(dataStore);
+    public static void initLogger(DataStore dataStore, Notify notify) {
+        logger = new Logger(dataStore, notify);
     }
 
     public static Logger getLogger() {
@@ -55,6 +57,9 @@ public class Logger {
             log.setStackTrace(stringBuilder.toString());
             log.setSeverity((log.getSeverity() == null) ? Severity.UNDEFINED : log.getSeverity());
             // Should call the service if the logs is of High or Critical Severity
+            if(this.notify != null && log.getSeverity() != Severity.UNDEFINED && log.getSeverity() != Severity.WARN ) {
+                notify.addError(log);
+            }
 
             logSet.add(log);
         }

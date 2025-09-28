@@ -1,6 +1,7 @@
 package tech.thedumbdev.service;
 
 import tech.thedumbdev.data.DataStore;
+import tech.thedumbdev.data.ElasticStore;
 import tech.thedumbdev.data.FileStore;
 import tech.thedumbdev.enums.Severity;
 import tech.thedumbdev.pojo.Log;
@@ -74,7 +75,7 @@ public class Logger {
                 logProcessingQueue.remove();
                 try {
                     dataStore.appendLog(logs);
-                } catch (TimeoutException e) {
+                } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
             });
@@ -102,8 +103,13 @@ public class Logger {
                 throw new RuntimeException("Executor shutdown timed out");
             }
 
+            // TODO: SHOULD ADD TO THE INTERFACE
             if (dataStore instanceof  FileStore) {
                 ((FileStore) dataStore).fileClose();
+            }
+
+            if(dataStore instanceof ElasticStore) {
+                ((ElasticStore) dataStore).connectionClose();
             }
 
         } catch (Exception e) {

@@ -36,7 +36,7 @@ public class FileStore implements DataStore {
     }
 
     @Override
-    public synchronized void appendLog(Set<Log> logs) throws RuntimeException { // Will be an io exception
+    public synchronized void appendLog(Set<Log> logs) throws Exception { // Will be an io exception
         try {
             for(Log log: logs) {
                 System.out.println(log.toString());

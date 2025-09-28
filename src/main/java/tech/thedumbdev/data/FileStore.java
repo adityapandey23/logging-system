@@ -14,7 +14,19 @@ public class FileStore implements DataStore {
 
     public FileStore() {
         this.timestamp = java.time.Instant.now().getEpochSecond();
-        this.file = new File("./logs/" + this.timestamp + ".log");
+        String home = System.getProperty("user.home");
+        String directoryPath = home + File.separator + "logs";
+        File directory = new File(directoryPath);
+
+        if(!directory.exists() || !directory.isDirectory()) {
+            boolean result = directory.mkdir();
+            if(!result) {
+                throw new RuntimeException("Unable to create directory");
+            }
+        }
+
+        // this is the actual file
+        this.file = new File(directoryPath + File.separator + this.timestamp + ".log");
         try {
             this.fos = new FileOutputStream(file, true);
             this.oos = new ObjectOutputStream(this.fos);
@@ -24,13 +36,12 @@ public class FileStore implements DataStore {
     }
 
     @Override
-    public synchronized void appendLog(Set<Log> logs) throws TimeoutException {
+    public synchronized void appendLog(Set<Log> logs) throws RuntimeException { // Will be an io exception
         try {
             for(Log log: logs) {
                 System.out.println(log.toString());
                 this.oos.writeObject(log);
             }
-            // Remove element
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

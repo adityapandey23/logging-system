@@ -94,25 +94,6 @@ public class Logger {
     }
 
     public void shutdown() {
-//        try {
-//            if (dataStore instanceof  FileStore) {
-//                ((FileStore) dataStore).fileClose();
-//            }
-//
-//            service.shutdown();
-//            try {
-//                if (!service.awaitTermination(10, TimeUnit.SECONDS)) {
-//                    service.shutdownNow();
-//                }
-//            }
-//            catch (InterruptedException e) {
-//                service.shutdownNow();
-//                Thread.currentThread().interrupt();
-//            }
-//        } catch (Exception e) {
-//            throw new RuntimeException(e);
-//        }
-
         try {
             ThreadPoolExecutor executor = (ThreadPoolExecutor) this.service;
             executor.shutdown();

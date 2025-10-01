@@ -1,13 +1,25 @@
 package tech.thedumbdev.service;
 
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.sns.SnsClient;
+import software.amazon.awssdk.services.sns.model.MessageAttributeValue;
+import software.amazon.awssdk.services.sns.model.PublishRequest;
+import software.amazon.awssdk.services.sns.model.PublishResponse;
 import tech.thedumbdev.enums.Severity;
 import tech.thedumbdev.pojo.Log;
 
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Notify {
     private Map<String, Integer> errorCount;
+    private SnsClient snsClient;
+    private String topicARN;
+    private String email;
 
     private final Map<Severity, Integer> EMAIL_THRESHOLDS = Map.of(
             Severity.LOW, 20,
@@ -15,11 +27,78 @@ public class Notify {
             Severity.HIGH, 10,
             Severity.CRITICAL, 5
     );
+    /*
+        - In this, we'll only send notification once we go beyond a certain number of error for a particular severity
+        - For low severity we expect at least 20 errors before we send an email notification
+        - For medium severity we expect at least 15 errors before we send an email notification
+        - For high severity we expect at least 10 errors before we send an email notification
+        - For critical severity we expect at least 5 errors before we send an email notification
+     */
 
-    public Notify() {
+    public Notify(Region region, String topicARN, String email, String accessKey, String secretKey) {
         this.errorCount = new HashMap<>();
         for(Severity severity : Severity.values()) {
             this.errorCount.put(severity.toString(), 0);
+        }
+
+        AwsBasicCredentials awsCreds = AwsBasicCredentials.create(accessKey, secretKey);
+
+        this.snsClient = SnsClient.builder()
+                .region(region)
+                .credentialsProvider(StaticCredentialsProvider.create(awsCreds))
+                .build();
+        this.topicARN = topicARN;
+        this.email = email;
+    }
+
+    private void sendEmail(Severity severity) {
+        Date now = new Date();
+        Timestamp timestamp = new Timestamp(now.getTime());
+
+        String subject = String.format("ALERT: %s severity detected in your application", severity.toString());
+
+        String jsonPayload = String.format("{ \"timestamp\": \"%s\" }", timestamp);
+
+        System.out.println(jsonPayload);
+
+
+        Map<String, MessageAttributeValue> attributes = new HashMap<>();
+
+        // Just in case we want to do filtering based on severity on the notification service side i.e. SNS
+        attributes.put(
+                "severity",
+                MessageAttributeValue
+                        .builder()
+                        .dataType("String")
+                        .stringValue(severity.getValue())
+                        .build()
+        );
+
+        attributes.put("to",
+                MessageAttributeValue.builder()
+                        .dataType("String")
+                        .stringValue(this.email)
+                        .build()
+        );
+
+        attributes.put("subject",
+                MessageAttributeValue.builder()
+                        .dataType("String")
+                        .stringValue(subject)
+                        .build()
+        );
+
+        try {
+            PublishRequest req = PublishRequest.builder()
+                    .topicArn(this.topicARN)
+                    .message(jsonPayload)
+                    .messageAttributes(attributes)
+                    .build();
+
+            PublishResponse res = snsClient.publish(req);
+            System.out.println("SNS message published " + res.messageId() + " for severity " + severity);
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to publish message on Simple Notification Service", e);
         }
     }
 
@@ -34,10 +113,5 @@ public class Notify {
             sendEmail(severity);
             this.errorCount.put(key, count % threshold);
         }
-    }
-
-    private void sendEmail(Severity severity) {
-        // TODO: Add publish event to the SNS which can then use Lambda and SES to send the email
-        System.out.println("I'll send email don't worry");
     }
 }

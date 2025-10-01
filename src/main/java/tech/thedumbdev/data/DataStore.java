@@ -8,4 +8,5 @@ import java.util.concurrent.TimeoutException;
 
 public interface DataStore {
     void appendLog(Set<Log> logs) throws Exception;
+    void close() throws Exception;
 }

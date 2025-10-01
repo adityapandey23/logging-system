@@ -1,11 +1,12 @@
 package tech.thedumbdev.service;
 
 import tech.thedumbdev.data.DataStore;
-import tech.thedumbdev.data.ElasticStore;
 import tech.thedumbdev.data.FileStore;
+import tech.thedumbdev.data.exceptions.FileStoreException;
 import tech.thedumbdev.enums.Severity;
 import tech.thedumbdev.pojo.Log;
 
+import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.HashSet;
 import java.util.Queue;
@@ -22,11 +23,16 @@ public class Logger {
     private Notify notify;
 
     private Logger(DataStore dataStore, Notify notify) {
-        this.dataStore = (dataStore == null) ? new FileStore() : dataStore;
-        this.logSet = new HashSet<>();
-        this.logProcessingQueue = new ArrayDeque<>();
-        this.service = Executors.newFixedThreadPool(10);
-        this.notify = notify;
+        try {
+            this.dataStore = (dataStore == null) ? new FileStore() : dataStore; // Defaults to FileStore
+            this.logSet = new HashSet<>();
+            this.logProcessingQueue = new ArrayDeque<>();
+            this.service = Executors.newFixedThreadPool(10);
+            this.notify = notify;
+
+        } catch (FileStoreException e) {
+            throw new RuntimeException("Failed to initialize the logger service", e);
+        }
     }
 
     public static void initLogger(DataStore dataStore, Notify notify) {
@@ -40,7 +46,7 @@ public class Logger {
     public void addLog(Log log) {
         synchronized (Logger.class) {
             if (logger == null) {
-                throw new IllegalStateException("Logger has not been initialized yet");
+                throw new RuntimeException("Logger has not been initialized yet");
             }
             long timestamp = java.time.Instant.now().getEpochSecond();
             Thread currentThread = Thread.currentThread();
@@ -56,8 +62,12 @@ public class Logger {
             log.setThreadId(Long.toString(currentThread.getId()));
             log.setStackTrace(stringBuilder.toString());
             log.setSeverity((log.getSeverity() == null) ? Severity.UNDEFINED : log.getSeverity());
-            // Should call the service if the logs is of High or Critical Severity
-            if(this.notify != null && log.getSeverity() != Severity.UNDEFINED && log.getSeverity() != Severity.WARN ) {
+
+            if(
+                    this.notify != null &&
+                            log.getSeverity() != Severity.UNDEFINED &&
+                            log.getSeverity() != Severity.WARN
+            ) {
                 notify.addError(log);
             }
 
@@ -81,7 +91,7 @@ public class Logger {
                 try {
                     dataStore.appendLog(logs);
                 } catch (Exception e) {
-                    throw new RuntimeException(e);
+                    throw new RuntimeException("Unable to append logs", e);
                 }
             });
         }
@@ -95,10 +105,6 @@ public class Logger {
         logProcessingQueue.clear();
     }
 
-    private void deleteLog() {
-        // File size based
-    }
-
     public void shutdown() {
         try {
             ThreadPoolExecutor executor = (ThreadPoolExecutor) this.service;
@@ -108,18 +114,9 @@ public class Logger {
                 throw new RuntimeException("Executor shutdown timed out");
             }
 
-            // TODO: SHOULD ADD TO THE INTERFACE
-            if (dataStore instanceof  FileStore) {
-                ((FileStore) dataStore).fileClose();
-            }
-
-            if(dataStore instanceof ElasticStore) {
-                ((ElasticStore) dataStore).connectionClose();
-            }
-
+            dataStore.close();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
-
 }

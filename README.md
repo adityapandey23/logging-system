@@ -266,10 +266,6 @@ java -cp target/logging-system-1.0-SNAPSHOT.jar tech.thedumbdev.App
 mvn test
 ```
 
-## 📝 License
-
-This project is available for educational and personal use.
-
 ---
 
 **Note**: The examples in [`App.java`](src/main/java/tech/thedumbdev/App.java) are intentionally commented out. Uncomment the desired example block and replace placeholder AWS credentials with real values before running.
